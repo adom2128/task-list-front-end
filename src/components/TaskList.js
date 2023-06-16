@@ -15,6 +15,7 @@ const TaskList = ({ tasks, onSetComplete, onDeleteTask }) => {
           title={task.title}
           isComplete={task.isComplete}
           onSetComplete={onSetComplete}
+          onDeleteTask={onDeleteTask}
         />
       );
     });
