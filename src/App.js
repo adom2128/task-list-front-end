@@ -29,13 +29,13 @@ const App = () => {
   };
 
   const deleteTask = (id) => {
-    // const tasks = taskData.filter(task => {
-    //   if (task.id !== id) {
-    //     return task;
-    //   }
-    // });
-    setTaskData((prev) => prev.filter((task) => task.id !== id));
-    // setTaskData(tasks);
+    const tasks = taskData.filter(task => {
+      if (task.id !== id) {
+        return task;
+      }
+    });
+    // setTaskData(taskData.filter((task) => task.id !== id));
+    setTaskData(tasks);
   };
 
   return (
