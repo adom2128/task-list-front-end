@@ -6,17 +6,44 @@ import NewTaskForm from './components/NewTaskForm.js';
 
 const baseUrl = 'http://127.0.0.1:5000';
 
-const getAllTasks = () => {
-  return axios
-    .get(`${baseUrl}/tasks`)
-    .then((response) => response.data.map(convertFromApi))
-    .catch((error) => console.log(error));
-};
-
 const convertFromApi = (apiCat) => {
   const { description, id, is_complete: isComplete, title } = apiCat;
   return {description, id, isComplete, title};
 };
+
+  // API Calls
+  const getAllTasks = () => {
+    return axios
+      .get(`${baseUrl}/tasks`)
+      .then((response) => response.data.map(convertFromApi))
+      .catch((error) => console.log(error));
+  };
+  
+  const getOneTask = (id) => {
+    return axios
+    .get(`${baseUrl}/tasks/${id}`)
+    .then((response) => {
+      return convertFromApi(response.data.task);
+    })
+    .catch((error) => console.log(error));
+  };
+
+  const updateCompletionApi = (id, isCurrentlyComplete) => {
+    const endpoint = isCurrentlyComplete ? 'mark_incomplete' : 'mark_complete';
+  
+    return axios
+      .patch(`${baseUrl}/tasks/${id}/${endpoint}`)
+      .then((response) => convertFromApi(response.data.task))
+      .catch((error) => console.log(error));
+  };
+
+  const deleteTaskApi = (id) => {
+    return axios
+      .delete(`${baseUrl}/tasks/${id}`)
+      .then((response) => console.log(response.data))
+      .catch((error) => console.log(error));
+  };
+
 
 const App = () => {
 
@@ -32,45 +59,35 @@ const App = () => {
     fetchTasks();
   }, []);
 
-  const markCompleteApi = (id, isCurrentlyComplete) => {
-    const endpoint = isCurrentlyComplete ? 'mark_incomplete' : 'mark_complete';
 
-    return axios
-      .patch(`${baseUrl}/tasks/${id}/${endpoint}`)
-      .then((response) => response.data.map(convertFromApi))
-      .catch((error) => console.log(error));
-  };
-
-  const markComplete = (id) => {
-    const tasks = taskData.map(task => {
-      if (task.id === id) {
-        const completionState = task.isComplete;
-        task.isComplete = !task.isComplete;
-        markCompleteApi(id, completionState);
-      }
-      return task;
+  const updateCompletion = (id) => {
+    getOneTask(id).then((response) => {
+      return updateCompletionApi(id, response.isComplete);
+    })
+    .then((response) => {
+      setTaskData((prev) => {
+        return prev.map((task) => {
+          if (id === task.id) {
+            return response;
+          } else {
+          return task; 
+          }
+        })
+      })
     });
-    setTaskData(tasks);
-  };
-
-  const deleteTaskApi = (id) => {
-    return axios
-      .delete(`${baseUrl}/tasks/${id}`)
-      .then((response) => response.data.map(convertFromApi))
-      .catch((error) => console.log(error));
   };
 
   const deleteTask = (id) => {
-    const tasks = taskData.filter(task => {
-      if (task.id !== id) {
-        return task;
-      }
-    });
-
-    setTaskData(tasks);
     deleteTaskApi(id);
-  };
 
+    setTaskData((prev) => {
+      return prev.filter((task) => {
+        if (task.id !== id) {
+          return task;
+        }
+      })
+    })
+  };
 
   const handleSubmit = (newTask) => {
     axios
@@ -81,7 +98,6 @@ const App = () => {
       .catch((error) => console.log(error));
   };
 
-
   return (
     <div className="App">
       <header className="App-header">
@@ -91,7 +107,7 @@ const App = () => {
         <div>
           <TaskList 
             tasks={taskData} 
-            onSetComplete={markComplete} 
+            onUpdateCompletion={updateCompletion} 
             onDeleteTask={deleteTask}
           />
           <NewTaskForm 
