@@ -14,9 +14,8 @@ const NewTaskForm = ({ onHandleSubmit }) => {
         event.preventDefault();
 
         const newTask = {
-            title: '',
-            description: newTaskName,
-            isComplete: false,
+            title: newTaskName,
+            description: ''
         };
 
         onHandleSubmit(newTask);

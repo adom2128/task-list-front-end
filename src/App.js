@@ -44,6 +44,13 @@ const convertFromApi = (apiCat) => {
       .catch((error) => console.log(error));
   };
 
+  const handleSubmitApi = (newTask) => {
+    return axios
+      .post(`${baseUrl}/tasks`, newTask)
+      .then((response) => convertFromApi(response.data.task))
+      .catch((error) => console.log(error));
+  };
+
 
 const App = () => {
 
@@ -90,12 +97,11 @@ const App = () => {
   };
 
   const handleSubmit = (newTask) => {
-    axios
-      .post(`${baseUrl}/tasks`, newTask)
+    
+    handleSubmitApi(newTask)
       .then((response) => {
-        setTaskData((prev) => [convertFromApi(response.data), ...prev]);
+        setTaskData((prev) => [response, ...prev]);
       })
-      .catch((error) => console.log(error));
   };
 
   return (
